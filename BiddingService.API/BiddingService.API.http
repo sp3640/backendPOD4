@@ -1,0 +1,6 @@
+@BiddingService.API_HostAddress = http://localhost:5133
+
+GET {{BiddingService.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
