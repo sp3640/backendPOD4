@@ -57,6 +57,7 @@ namespace OnlineAuctionSystem.BiddingService.Controllers
             try
             {
                 var response = await _httpClient.GetAsync($"api/Auctions/{dto.AuctionId}");
+                Console.WriteLine(dto.AuctionId);
                 if (!response.IsSuccessStatusCode) return BadRequest("Auction not found or inaccessible.");
 
                 var content = await response.Content.ReadAsStringAsync();
@@ -65,7 +66,7 @@ namespace OnlineAuctionSystem.BiddingService.Controllers
             catch (Exception)
             {
                 // Handle network or serialization errors
-                return StatusCode(503, "Cannot communicate with Auction Service.");
+                return StatusCode(503, "Cannot communicate with Auction Service."+ dto.AuctionId);
             }
 
             // 2. Validate Bid
