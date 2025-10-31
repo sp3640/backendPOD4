@@ -28,7 +28,6 @@ namespace OnlineAuctionSystem.PaymentService.Controllers
         public PaymentsController(PaymentDbContext context, HttpClient httpClient, IConfiguration configuration)
         {
             _context = context;
-            // Base address should be configured to the Auction Service URL
             httpClient.BaseAddress = new Uri(configuration["AuctionService:Url"]
                                              ?? throw new ArgumentNullException("AuctionService:Url not configured."));
             _httpClient = httpClient;
@@ -65,7 +64,7 @@ namespace OnlineAuctionSystem.PaymentService.Controllers
             if (auction.SellerUsername == null)
                 return BadRequest("Auction missing seller information.");
 
-            // 3. Simulate Payment Gateway Success (In a real app, external API call occurs here)
+            // 3. Simulate Payment Gateway Success
             bool paymentSuccess = SimulatePayment(dto.CardNumber);
 
             if (!paymentSuccess)
@@ -89,7 +88,6 @@ namespace OnlineAuctionSystem.PaymentService.Controllers
             // 5. Update Auction Status to 'Sold' in the Auction Service
             try
             {
-                // Note: Assuming a similar authorized endpoint exists in Auction Service to update status
                 var updateResponse = await _httpClient.PutAsync(
                     $"api/Auctions/status/{dto.AuctionId}?newStatus=Sold",
                     null
@@ -97,8 +95,7 @@ namespace OnlineAuctionSystem.PaymentService.Controllers
 
                 if (!updateResponse.IsSuccessStatusCode)
                 {
-                    // Consistency error: payment succeeded, but auction status update failed. Requires logging/retry logic.
-                    // For now, we return success based on transaction record.
+                    // Log or handle consistency error
                 }
             }
             catch (Exception ex)
@@ -111,7 +108,7 @@ namespace OnlineAuctionSystem.PaymentService.Controllers
 
         // GET: api/Payments/check/{auctionId} (Used by Review Service for validation)
         [HttpGet("check/{auctionId:guid}")]
-        [Authorize] // Requires authentication, often using internal role/policy
+        [Authorize]
         public async Task<IActionResult> CheckTransactionExists(Guid auctionId)
         {
             var transactionExists = await _context.Transactions
@@ -124,11 +121,36 @@ namespace OnlineAuctionSystem.PaymentService.Controllers
             return NotFound(new { exists = false });
         }
 
+        // ✅ NEW ENDPOINT: GET transaction details for a specific auction
+        [HttpGet("auction/{auctionId:guid}")]
+        [Authorize]
+        public async Task<ActionResult<Transaction>> GetTransactionForAuction(Guid auctionId)
+        {
+            var transaction = await _context.Transactions
+                .FirstOrDefaultAsync(t => t.AuctionId == auctionId);
+
+            if (transaction == null)
+            {
+                return NotFound(new { message = "No transaction found for this auction." });
+            }
+
+            var username = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+            if (string.IsNullOrEmpty(username))
+            {
+                return Unauthorized();
+            }
+
+            if (transaction.BuyerUsername != username && transaction.SellerUsername != username)
+            {
+                return Forbid("You are not authorized to view this receipt.");
+            }
+
+            return Ok(transaction);
+        }
 
         // Simple Simulation Logic
         private bool SimulatePayment(string cardNumber)
         {
-            // Simulate failure if card number ends in '0'
             return !cardNumber.EndsWith("0");
         }
     }
