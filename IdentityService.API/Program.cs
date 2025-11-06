@@ -9,9 +9,8 @@ using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure Log4Net
-//var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
-//XmlConfigurator.Configure(logRepository, new FileInfo("log4net.config"));
+builder.Logging.ClearProviders();
+builder.Logging.AddLog4Net("log4net.config");
 
 // Add services to the container.
 
