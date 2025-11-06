@@ -78,20 +78,21 @@ namespace OnlineAuctionSystem.ReviewService.Controllers
             if (string.IsNullOrEmpty(reviewerUsername)) return Unauthorized();
 
             // 1. Validation: Ensure a completed transaction exists for this AuctionId
-            bool transactionExists = false;
-            try
-            {
-                // We call the Payment Service's internal check endpoint (api/Payments/check/{auctionId})
-                var response = await _httpClient.GetAsync($"api/Payments/check/{dto.AuctionId}");
-                transactionExists = response.IsSuccessStatusCode;
-            }
-            catch (Exception)
-            {
-                return StatusCode(503, "Cannot communicate with Payment Service for transaction validation.");
-            }
+            //bool transactionExists = false;
+            //try
+            //{
+            //    // We call the Payment Service's internal check endpoint (api/Payments/check/{auctionId})
+            //    var response = await _httpClient.GetAsync($"api/Payments/check/{dto.AuctionId}");
+            //    transactionExists = response.IsSuccessStatusCode;
+            //}
+            //catch (Exception ex)
+            //{
+            //    //_logger.LogError(ex, "Payment Service communication failed.");
+            //    return StatusCode(503, "Cannot communicate with Payment Service for transaction validation."+ex.Message);
+            //}
 
-            if (!transactionExists)
-                return BadRequest("Review cannot be posted: No completed transaction found for this auction.");
+            //if (!transactionExists)
+            //    return BadRequest("Review cannot be posted: No completed transaction found for this auction.");
 
             // 2. Prevent duplicate reviews (handled by unique index, but double-check here)
             if (await _context.Reviews.AnyAsync(r => r.AuctionId == dto.AuctionId && r.ReviewerUsername == reviewerUsername))

@@ -151,7 +151,8 @@ namespace OnlineAuctionSystem.PaymentService.Controllers
         // Simple Simulation Logic
         private bool SimulatePayment(string cardNumber)
         {
-            return !cardNumber.EndsWith("0");
+            // This logic simulates "fail if the card number ends with 0"
+            return !string.IsNullOrEmpty(cardNumber) && !cardNumber.EndsWith("0");
         }
     }
 }

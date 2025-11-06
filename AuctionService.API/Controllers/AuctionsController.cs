@@ -57,8 +57,8 @@ namespace OnlineAuctionSystem.AuctionService.Controllers
              Description = dto.Description,
               SellerUsername = sellerUsername, // This was correct
                  StartPrice = dto.StartPrice,
-                 StartTime = DateTime.UtcNow,
-              EndTime = DateTime.UtcNow.AddMinutes(dto.DurationMinutes),
+                 StartTime = DateTime.UtcNow.AddHours(5).AddMinutes(30),
+              EndTime = DateTime.UtcNow.AddHours(5).AddMinutes(30).AddMinutes(dto.DurationMinutes),
              Status = "Live",
                  ImageUrl = dto.ImageUrl // ADD THIS LINE
 };

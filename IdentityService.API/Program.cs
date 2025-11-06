@@ -1,10 +1,17 @@
+using log4net;
+using log4net.Config;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OnlineAuctionSystem.IdentityService.Data;
-using OnlineAuctionSystem.IdentityService.Models;
 using OnlineAuctionSystem.IdentityService.Helpers;
+using OnlineAuctionSystem.IdentityService.Models;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure Log4Net
+//var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
+//XmlConfigurator.Configure(logRepository, new FileInfo("log4net.config"));
 
 // Add services to the container.
 
@@ -27,7 +34,7 @@ builder.Services.AddCors(options =>
         policy =>
         {
             // IMPORTANT: Replace with your actual React app's URL
-            policy.WithOrigins("http://localhost:5175")
+            policy.WithOrigins("http://localhost:5173")
                   .AllowAnyHeader()
                   .AllowAnyMethod()
                   .AllowCredentials();
