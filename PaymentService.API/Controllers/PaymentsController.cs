@@ -41,7 +41,7 @@ namespace OnlineAuctionSystem.PaymentService.Controllers
             var buyerUsername = User.FindFirst(ClaimTypes.Name)?.Value;
             if (string.IsNullOrEmpty(buyerUsername)) return Unauthorized();
 
-            // 1. Fetch current auction details from Auction Service
+            // Fetch current auction details from Auction Service
             AuctionDetailsDto? auction;
             try
             {
@@ -56,7 +56,7 @@ namespace OnlineAuctionSystem.PaymentService.Controllers
                 return StatusCode(503, "Cannot communicate with Auction Service.");
             }
 
-            // 2. Critical Validation
+            //  Critical Validation
             if (auction?.Status != "Ended")
                 return BadRequest("Auction is not ready for settlement.");
             if (auction.HighestBidderUsername != buyerUsername)
@@ -64,7 +64,7 @@ namespace OnlineAuctionSystem.PaymentService.Controllers
             if (auction.SellerUsername == null)
                 return BadRequest("Auction missing seller information.");
 
-            // 3. Simulate Payment Gateway Success
+            //  Simulate Payment Gateway Success
             bool paymentSuccess = SimulatePayment(dto.CardNumber);
 
             if (!paymentSuccess)
@@ -72,7 +72,7 @@ namespace OnlineAuctionSystem.PaymentService.Controllers
                 return BadRequest(new { message = "Payment failed due to simulated card processing error." });
             }
 
-            // 4. Record Transaction
+            //  Record Transaction
             var transaction = new Transaction
             {
                 AuctionId = dto.AuctionId,
@@ -85,7 +85,7 @@ namespace OnlineAuctionSystem.PaymentService.Controllers
             _context.Transactions.Add(transaction);
             await _context.SaveChangesAsync();
 
-            // 5. Update Auction Status to 'Sold' in the Auction Service
+            //  Update Auction Status to 'Sold' in the Auction Service
             try
             {
                 var updateResponse = await _httpClient.PutAsync(
