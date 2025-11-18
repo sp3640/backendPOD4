@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OnlineAuctionSystem.BiddingService.Models
 {
@@ -15,6 +16,7 @@ namespace OnlineAuctionSystem.BiddingService.Models
         public string BidderUsername { get; set; } = string.Empty;
 
         [Required]
+        [Column(TypeName = "decimal(18,2)")]
         public decimal Amount { get; set; }
 
         public DateTime Timestamp { get; set; } = DateTime.UtcNow;
